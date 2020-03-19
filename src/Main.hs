@@ -43,7 +43,7 @@ update origGameState = proc events -> do
   gameState <- run origGameState -< newInputState
   returnA -<
     ( gameState,
-      fromJust (newInputState ^. I.quit ^? pressed)
+      (fromJust (newInputState ^. I.quit ^? pressed))
     )
 
 getResources :: (MonadIO m) => S.Renderer -> m Resources

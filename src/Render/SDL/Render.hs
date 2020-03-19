@@ -20,8 +20,8 @@ render renderer res (game@(GameState (CameraState zoomLevel) (PhysicalState play
     return exit
   where
     -- Static stuff center rot at top left
-    renderObj' = renderObj (player ^. (obj . pos)) (flip getSprite res) (fromIntegral zoomLevel) renderer
-    renderSpr = renderObj' True
+    renderObj' = renderObj (V2 0 0) (flip getSprite res) (fromIntegral zoomLevel) renderer
+    renderSpr = renderObj'
     -- renderTerr = renderObj' False
     -- renderText' = renderText renderer (res ^. font)
-    -- renderPt pos = renderObj' True (Object pos (V2 50 50) 0 SobjectSprite2)
+    -- renderPt pos = renderObj' True (Obj pos (V2 50 50) 0 SobjectSprite2)

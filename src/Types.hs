@@ -22,7 +22,7 @@ data SpriteSelect
   | SobjectSprite2
   deriving (Show)
 
-getSprite :: Object a SpriteSelect -> Resources -> S.Texture
+getSprite :: Obj a SpriteSelect -> Resources -> S.Texture
 getSprite obj =
   case (obj ^. spr) of
     SobjectSprite -> _objectSprite
@@ -40,6 +40,7 @@ data PhysicalState
     player :: CollObj Double SpriteSelect,
     enemies :: [CollObj Double SpriteSelect]
   }
+  deriving (Show)
 
 makeLenses ''PhysicalState
 
@@ -48,5 +49,6 @@ data GameState
       { _cameraState :: CameraState,
         _physicalState :: PhysicalState
       }
+  deriving (Show)
 
 makeLenses ''GameState

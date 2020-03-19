@@ -10,8 +10,8 @@ initialGame =
     (CameraState 3)
   (PhysicalState
     (CollObj
-    []
-      (Object (V2 0 0) (V2 100 100) 0 SobjectSprite2))
-    [(CollObj
-     []
-       (Object (V2 0 100) (V2 100 100) 0 SobjectSprite))])
+    [[(V2 0 0), (V2 0 1), (V2 1 1), (V2 1 0)]]
+      (Obj (V2 0 0) (V2 100 100) 0 SobjectSprite2 True))
+    [(CollObj [[(V2 0 0), (V2 0 1), (V2 1 1), (V2 1 0)]]
+       (Obj (V2 0 100) (V2 100 100) 0 SobjectSprite True))
+    ])

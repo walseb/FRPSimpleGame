@@ -10,16 +10,18 @@ import FRPEngine.Input.Interpreter (vectorizeMovement)
 import FRPEngine.Input.Types
 import Control.Lens
 
+speed :: (Num a) => V2 a
+speed = 500
+
 type MoveKeys a = V2 a
 type InitPos a = V2 a
 
 move :: (RealFloat a) => InitPos a -> SF (MoveKeys a) (V2 a)
 move initPos = proc dir -> do
-  hmm the player doesn't move
-  pos <- integralFrom initPos -< dir
+  pos <- integralFrom initPos -< (V2 0 ((dir * speed) ^. _y))
   returnA -< pos
 
-playerRun :: (RealFloat a) => Object a _b -> SF (InputState) (Object a _b)
+playerRun :: (RealFloat a) => Obj a _b -> SF (InputState) (Obj a _b)
 playerRun initObj = proc input -> do
-  pos' <- move (initObj ^. pos) -< (vectorizeMovement (input ^. movement))
+  pos' <- move (initObj ^. pos) -< vectorizeMovement (input ^. movement)
   returnA -< pos .~ pos' $ initObj
