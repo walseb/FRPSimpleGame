@@ -8,20 +8,26 @@ import FRPEngine.Types
 import Types
 
 render :: S.Renderer -> Resources -> (GameState, Bool) -> IO Bool
-render renderer res (game@(GameState (CameraState zoomLevel) (PhysicalState player enemies)), exit) =
+render renderer res (GameState (CameraState zoomLevel) (PhysicalState player enemies) alive, exit) =
   do
     S.rendererDrawColor renderer S.$= S.V4 0 0 0 255
     S.clear renderer
 
-    renderSpr (player ^. obj)
-    sequence $ renderSpr . (^. obj) <$> enemies
+    case alive of
+      True -> renderSpr (player ^. obj)
+      False -> pure ()
+
+    sequence_ $ renderSpr . (^. obj) <$> enemies
+
+    -- sequence_ $ (join . join) $ (fmap . fmap . fmap) renderPt $ getCollisionPointsPos <$> [player]
+    -- sequence_ $ (join . join) $ (fmap . fmap . fmap) renderPt $ getCollisionPointsPos <$> enemies
 
     S.present renderer
     return exit
   where
     -- Static stuff center rot at top left
-    renderObj' = renderObj (V2 0 0) (flip getSprite res) (fromIntegral zoomLevel) renderer
+    renderObj' = renderObj (player ^. (obj . pos)) (flip getSprite res) (fromIntegral zoomLevel) renderer
     renderSpr = renderObj'
     -- renderTerr = renderObj' False
     -- renderText' = renderText renderer (res ^. font)
-    -- renderPt pos = renderObj' True (Obj pos (V2 50 50) 0 SobjectSprite2)
+    renderPt pos = renderObj' (Obj pos (V2 50 50) 0 SobjectSprite2 True)

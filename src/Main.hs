@@ -20,6 +20,7 @@ import FRPEngine.Init
 import FRPEngine.Input.Input
 import Actor
 import FRPEngine.Types
+import FRPEngine.Collision.GJK
 
 runPhysical :: PhysicalState -> SF InputState PhysicalState
 runPhysical (PhysicalState (CollObj iPC iP) iE) =
@@ -28,14 +29,33 @@ runPhysical (PhysicalState (CollObj iPC iP) iE) =
     returnA -< PhysicalState (CollObj iPC p) iE
 
 run :: GameState -> SF InputState GameState
-run (GameState (CameraState iZ) p) =
+run (GameState (CameraState iZ) p alive) =
   proc input -> do
     physical <- runPhysical p -< input
+    alive <- collidedSwitch -< physical
+
     returnA -<
       ( GameState
           (CameraState iZ)
           physical
+          alive
       )
+
+collided :: SF PhysicalState (Bool, Event ())
+collided = proc (PhysicalState player enemies) -> do
+  let hasCollided =
+        or (collidesObj player <$> enemies)
+
+  returnA -< (not hasCollided,
+    case hasCollided of
+      True -> Event ()
+      False -> NoEvent)
+
+collidedSwitch :: SF PhysicalState Bool
+collidedSwitch =
+  switch
+   collided
+    (\a -> constant False)
 
 update :: GameState -> SF (Event [S.Event]) (GameState, Bool)
 update origGameState = proc events -> do
@@ -57,8 +77,8 @@ getResources renderer =
     load :: (MonadIO m) => FilePath -> S.Renderer -> m S.Texture
     load path rend = SI.loadTexture rend path
     fontPath = "data/fonts/OpenSans-Regular.ttf"
-    spritePath = "data/testSprite.png"
-    spritePath2 = "data/testSprite2.png"
+    spritePath = "data/enemy.png"
+    spritePath2 = "data/player.png"
 
 main =
   runSDL

@@ -47,7 +47,8 @@ makeLenses ''PhysicalState
 data GameState
   = GameState
       { _cameraState :: CameraState,
-        _physicalState :: PhysicalState
+        _physicalState :: PhysicalState,
+        _alive :: Bool
       }
   deriving (Show)
 
