@@ -17,6 +17,11 @@ speed = 500
 forwardSpeed :: (RealFloat a) => a
 forwardSpeed = 500
 
+maxX :: (RealFloat a) => a
+maxX = 500
+minX :: (RealFloat a) => a
+minX = 0
+
 type MoveKeys a = V2 a
 
 type InitPos a = V2 a
@@ -30,8 +35,8 @@ move (V2 iPX iPY) = proc dir -> do
      in (pos, restrict pos)
   where
     restrict (V2 x y)
-      | y > 500 = Event (V2 x 500)
-      | y < 0 = Event (V2 x 0)
+      | y > maxX = Event (V2 x maxX)
+      | y < minX = Event (V2 x minX)
       | otherwise = NoEvent
 
 playerRun :: (RealFloat a) => Obj a _b -> SF InputState (Obj a _b)
