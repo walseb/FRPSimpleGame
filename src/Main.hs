@@ -5,22 +5,22 @@ module Main
   )
 where
 
+import Actor
 import Control.Lens
 import Control.Monad.IO.Class
 import Data.Maybe
 import FRP.Yampa
+import FRPEngine.Collision.GJK
+import FRPEngine.Init
+import FRPEngine.Input.Input
 import FRPEngine.Input.Types as I
+import FRPEngine.Types
 import Level
 import Render.SDL.Render
 import qualified SDL as S
 import qualified SDL.Font as F
 import SDL.Image as SI
 import Types
-import FRPEngine.Init
-import FRPEngine.Input.Input
-import Actor
-import FRPEngine.Types
-import FRPEngine.Collision.GJK
 
 runPhysical :: PhysicalState -> SF InputState PhysicalState
 runPhysical (PhysicalState (CollObj iPC iP) iE) =
@@ -33,7 +33,6 @@ run (GameState (CameraState iZ) p alive) =
   proc input -> do
     physical <- runPhysical p -< input
     alive <- collidedSwitch -< physical
-
     returnA -<
       ( GameState
           (CameraState iZ)
@@ -45,16 +44,17 @@ collided :: SF PhysicalState (Bool, Event ())
 collided = proc (PhysicalState player enemies) -> do
   let hasCollided =
         or (collidesObj player <$> enemies)
-
-  returnA -< (not hasCollided,
-    case hasCollided of
-      True -> Event ()
-      False -> NoEvent)
+  returnA -<
+    ( not hasCollided,
+      case hasCollided of
+        True -> Event ()
+        False -> NoEvent
+    )
 
 collidedSwitch :: SF PhysicalState Bool
 collidedSwitch =
   switch
-   collided
+    collided
     (\a -> constant False)
 
 update :: GameState -> SF (Event [S.Event]) (GameState, Bool)
