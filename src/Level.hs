@@ -34,7 +34,7 @@ buildSlice :: (RealFloat a) => a -> Slice -> [CollObj a SpriteSelect]
 buildSlice x things@(a : b : c : d) =
   catMaybes $ buildSingle <$> (zip pos things)
   where
-    y = realToFrac <$> [-1,99 .. 506]
+    y = realToFrac <$> [-1,98 .. 506]
     pos = liftA2 V2 [x] y
 
 buildSingle :: (RealFloat a) => (V2 a, Bool) -> Maybe (CollObj a SpriteSelect)
@@ -59,81 +59,79 @@ initialGame =
         ( [ -- Terrain
             ( CollObj
                 [[]]
-                (Obj (V2 (-10000) 547) (V2 50000000 5000) 0 SobjectSprite False)
+                (Obj (V2 (-10000) 542) (V2 50000000 5000) 0 SobjectSprite False)
             ),
             ( CollObj
                 [[]]
                 (Obj (V2 (-10000) (-5050)) (V2 50000000 5000) 0 SobjectSprite False)
-            ),
-            -- Enemies
-
-            -- Wall top bottom
-            ( CollObj
-                boxColl
-                (Obj (V2 1000 (-1)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 1000 (moveBlockUp (-1))) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 1000 ((moveBlockUp . moveBlockUp) (-1))) (V2 100 100) 0 SobjectSprite True)
-            ),
-            -- Wall bottom top
-            ( CollObj
-                boxColl
-                (Obj (V2 1500 501) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 1500 (moveBlockDown 501)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 1500 ((moveBlockDown . moveBlockDown) 501)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            -- Middle wall
-            ( CollObj
-                boxColl
-                (Obj (V2 2000 250) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 2000 (moveBlockDown 250)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 2000 (moveBlockUp 250)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            -- Wall middle open
-            ( CollObj
-                boxColl
-                (Obj (V2 2500 (-1)) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 2500 (moveBlockUp (-1))) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 2500 501) (V2 100 100) 0 SobjectSprite True)
-            ),
-            ( CollObj
-                boxColl
-                (Obj (V2 2500 (moveBlockDown 501)) (V2 100 100) 0 SobjectSprite True)
             )
           ]
             ++ (build
                [
                  -- Ok so to transform this quickly just turn all to False, then search and replace False with True. Then you just press y or n until you have the layout you want
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True],
-                 [True, False, False, True, False, True]
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [True, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, True, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [True, True, True, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, True, True, True],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [True, True, True, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [True, True, False, False, True, True],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, True, False, False],
+                 [False, False, False, True, False, False],
+                 [True, True, True, True, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, True, True, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False],
+                 [False, False, False, False, False, False]
                ]
               )
           -- Semi-random level
