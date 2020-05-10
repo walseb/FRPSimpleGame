@@ -42,7 +42,7 @@ buildSingle ((V2 x y), True) =
   Just
     ( CollObj
         boxColl
-        (Obj (V2 x y) (V2 100 100) 0 SobjectSprite True)
+        (Obj (V2 x y) 0 0 (V2 100 100) SobjectSprite True)
     )
 buildSingle ((V2 x y), False) =
   Nothing
@@ -54,21 +54,20 @@ initialGame =
     ( PhysicalState
         ( CollObj
             boxColl
-            (Obj (V2 0 0) (V2 100 100) 0 SobjectSprite2 True)
+            (Obj (V2 0 0) 0 0 (V2 100 100) SobjectSprite2 True)
         )
         ( [ -- Terrain
             ( CollObj
                 [[]]
-                (Obj (V2 (-10000) 542) (V2 50000000 5000) 0 SobjectSprite False)
+                (Obj (V2 (-10000) 542) 0 0 (V2 50000000 5000) SobjectSprite False)
             ),
             ( CollObj
                 [[]]
-                (Obj (V2 (-10000) (-5050)) (V2 50000000 5000) 0 SobjectSprite False)
+                (Obj (V2 (-10000) (-5050)) 0 0 (V2 50000000 5000) SobjectSprite False)
             )
           ]
             ++ (build
                [
-                 -- Ok so to transform this quickly just turn all to False, then search and replace False with True. Then you just press y or n until you have the layout you want
                  [False, False, False, False, False, False],
                  [False, False, False, False, False, False],
                  [False, False, False, False, False, False],

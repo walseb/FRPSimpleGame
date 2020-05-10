@@ -30,4 +30,4 @@ render renderer res (GameState (CameraState zoomLevel) (PhysicalState player ene
     renderSpr = renderObj'
     -- renderTerr = renderObj' False
     -- renderText' = renderText renderer (res ^. font)
-    renderPt pos = renderObj' (Obj pos (V2 50 50) 0 SobjectSprite2 True)
+    renderPt pos = renderObj' (Obj pos 0 0 (V2 50 50) SobjectSprite2 True)

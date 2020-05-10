@@ -6,9 +6,11 @@ module Main
 where
 
 import Actor
+import Control.Concurrent.MVar
 import Control.Lens
 import Control.Monad.IO.Class
 import Data.Maybe
+import qualified Debug.Trace as Tr
 import FRP.Yampa
 import FRPEngine.Collision.GJK
 import FRPEngine.Init
@@ -20,6 +22,7 @@ import Render.SDL.Render
 import qualified SDL as S
 import qualified SDL.Font as F
 import SDL.Image as SI
+import System.IO.Unsafe
 import Types
 
 runPhysical :: PhysicalState -> SF InputState PhysicalState
@@ -28,17 +31,24 @@ runPhysical (PhysicalState (CollObj iPC iP) iE) =
     p <- playerRun iP -< input
     returnA -< PhysicalState (CollObj iPC p) iE
 
-run :: GameState -> SF InputState GameState
-run (GameState (CameraState iZ) p alive) =
-  proc input -> do
-    physical <- runPhysical p -< input
-    alive <- collidedSwitch -< physical
-    returnA -<
-      ( GameState
+run :: GameState -> SF InputState (GameState, Event GameState)
+run (GameState (CameraState iZ) p alive) = proc input -> do
+  physical <- runPhysical p -< input
+  alive <- aliveSwitch -< physical
+  returnA -<
+    ( ( GameState
           (CameraState iZ)
           physical
           alive
-      )
+      ),
+      if alive then NoEvent else Event initialGame
+    )
+  where
+    aliveSwitch :: SF PhysicalState Bool
+    aliveSwitch =
+      switch
+        collided
+        (\a -> constant False)
 
 collided :: SF PhysicalState (Bool, Event ())
 collided = proc (PhysicalState player enemies) -> do
@@ -51,20 +61,28 @@ collided = proc (PhysicalState player enemies) -> do
         False -> NoEvent
     )
 
-collidedSwitch :: SF PhysicalState Bool
-collidedSwitch =
-  switch
-    collided
-    (\a -> constant False)
+type UpdateLoop = (GameState -> MVar GameState -> SF (Event [S.Event]) (GameState, Bool))
 
-update :: GameState -> SF (Event [S.Event]) (GameState, Bool)
-update origGameState = proc events -> do
+update :: UpdateLoop
+update origGameState mvar = proc events -> do
   newInputState <- accumHoldBy inputStateUpdate defaultKeybinds -< events
-  gameState <- run origGameState -< newInputState
+  gameState <- runDeathResetSwitch origGameState -< newInputState
+  let quit = (fromJust (newInputState ^. I.quit ^? pressed))
+      quit' =
+        if quit
+          then-- UnsafePerformIO has to be used because the default reactimate doesn't allow there to be any self-defined return values on exit
+            seq (unsafePerformIO (putMVar mvar gameState)) True
+          else False
   returnA -<
     ( gameState,
-      (fromJust (newInputState ^. I.quit ^? pressed))
+      quit'
     )
+  where
+    runDeathResetSwitch :: GameState -> SF InputState GameState
+    runDeathResetSwitch game =
+      switch
+        (run game)
+        (Tr.trace "Dead" $ runDeathResetSwitch)
 
 getResources :: (MonadIO m) => S.Renderer -> m Resources
 getResources renderer =
@@ -80,10 +98,21 @@ getResources renderer =
     spritePath = "data/enemy.png"
     spritePath2 = "data/player.png"
 
-main =
+loadOldGameState :: UpdateLoop -> Maybe GameState -> MVar GameState -> SF (Event [S.Event]) (GameState, Bool)
+loadOldGameState f Nothing =
+  f initialGame
+loadOldGameState f (Just origGameState) =
+  f origGameState
+
+main = do
+  myMVar <- newEmptyMVar
   runSDL
     True
     S.Windowed
     "FRP Lunar Lander"
     getResources
-    (\renderer senseInput resources -> reactimate (pure NoEvent) senseInput (\_ -> render renderer resources) (update initialGame))
+    ( \savedGameState renderer senseInput resources -> do
+        _ <- reactimate (pure NoEvent) senseInput (\_ -> render renderer resources) (loadOldGameState update savedGameState myMVar)
+        mvar <- takeMVar myMVar
+        pure mvar
+    )

@@ -34,4 +34,6 @@ executable FRPSimpleGame
 
                 , bearriver
                 , template-haskell
-                , FRPEngine == 0.1.*
+                , FRPEngine == 0.2.*
+
+                , aeson
