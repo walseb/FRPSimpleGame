@@ -108,8 +108,8 @@ main = do
   myMVar <- newEmptyMVar
   runSDL
     True
-    S.Windowed
-    "FRP Lunar Lander"
+    S.Maximized
+    "Simple game"
     getResources
     ( \savedGameState renderer senseInput resources -> do
         _ <- reactimate (pure NoEvent) senseInput (\_ -> render renderer resources) (loadOldGameState update savedGameState myMVar)
