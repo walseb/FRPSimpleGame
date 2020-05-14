@@ -67,7 +67,7 @@ update :: UpdateLoop
 update origGameState mvar = proc events -> do
   newInputState <- accumHoldBy inputStateUpdate defaultKeybinds -< events
   gameState <- runDeathResetSwitch origGameState -< newInputState
-  let quit = (fromJust (newInputState ^. I.quit ^? pressed))
+  let quit = (fromJust (newInputState ^. I.quit ^? close))
       quit' =
         if quit
           then-- UnsafePerformIO has to be used because the default reactimate doesn't allow there to be any self-defined return values on exit
