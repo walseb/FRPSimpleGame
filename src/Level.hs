@@ -8,7 +8,7 @@ import FRPEngine.Types
 import Linear
 import Types
 
-boxColl :: (RealFloat a) => [[V2 a]]
+boxColl :: (Number a) => [[V2 a]]
 boxColl = [[(V2 0 0), (V2 0 1), (V2 1 1), (V2 1 0)]]
 
 moveBlock mod a = a + (99 * mod)
@@ -24,20 +24,20 @@ type Slice = [Bool]
 
 type Lvl = [Slice]
 
-build :: (RealFloat a) => Lvl -> [CollObj a SpriteSelect]
+build :: (Number a) => Lvl -> [CollObj a SpriteSelect]
 build lvl = join $ zipWith (flip buildSlice) lvl y
   where
     -- 99 is here to fix the gap problem with integer rendering positions
     y = realToFrac <$> [0,99 ..]
 
-buildSlice :: (RealFloat a) => a -> Slice -> [CollObj a SpriteSelect]
+buildSlice :: (Number a) => a -> Slice -> [CollObj a SpriteSelect]
 buildSlice x things@(a : b : c : d) =
   catMaybes $ buildSingle <$> (zip pos things)
   where
     y = realToFrac <$> [-1,98 .. 506]
     pos = liftA2 V2 [x] y
 
-buildSingle :: (RealFloat a) => (V2 a, Bool) -> Maybe (CollObj a SpriteSelect)
+buildSingle :: (Number a) => (V2 a, Bool) -> Maybe (CollObj a SpriteSelect)
 buildSingle ((V2 x y), True) =
   Just
     ( CollObj

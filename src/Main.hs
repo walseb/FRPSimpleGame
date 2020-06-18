@@ -12,7 +12,7 @@ import Control.Monad.IO.Class
 import Data.Maybe
 import qualified Debug.Trace as Tr
 import FRP.Yampa
-import FRPEngine.Collision.GJK
+import FRPEngine.Physics.Collision.GJK
 import FRPEngine.Init
 import FRPEngine.Input.Input
 import FRPEngine.Input.Types as I
@@ -24,23 +24,23 @@ import qualified SDL.Font as F
 import SDL.Image as SI
 import System.IO.Unsafe
 import Types
+import Input
 
-runPhysical :: PhysicalState -> SF InputState PhysicalState
+runPhysical :: PhysicalState -> SF [Input] PhysicalState
 runPhysical (PhysicalState (CollObj iPC iP) iE) =
   proc input -> do
     p <- playerRun iP -< input
     returnA -< PhysicalState (CollObj iPC p) iE
 
-run :: GameState -> SF InputState (GameState, Event GameState)
+run :: GameState -> SF [Input] (GameState, Event GameState)
 run (GameState (CameraState iZ) p alive) = proc input -> do
   physical <- runPhysical p -< input
   alive <- aliveSwitch -< physical
   returnA -<
-    ( ( GameState
+    (  GameState
           (CameraState iZ)
           physical
-          alive
-      ),
+          alive,
       if alive then NoEvent else Event initialGame
     )
   where
@@ -65,9 +65,9 @@ type UpdateLoop = (GameState -> MVar GameState -> SF (Event [S.Event]) (GameStat
 
 update :: UpdateLoop
 update origGameState mvar = proc events -> do
-  newInputState <- accumHoldBy inputStateUpdate defaultKeybinds -< events
+  newInputState <- accumHoldBy updateInput keyBinds -< events
   gameState <- runDeathResetSwitch origGameState -< newInputState
-  let quit = (fromJust (newInputState ^. I.quit ^? close))
+  let quit = (quitKey newInputState)
       quit' =
         if quit
           then-- UnsafePerformIO has to be used because the default reactimate doesn't allow there to be any self-defined return values on exit
@@ -78,7 +78,7 @@ update origGameState mvar = proc events -> do
       quit'
     )
   where
-    runDeathResetSwitch :: GameState -> SF InputState GameState
+    runDeathResetSwitch :: GameState -> SF [Input] GameState
     runDeathResetSwitch game =
       switch
         (run game)
